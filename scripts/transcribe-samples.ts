@@ -9,7 +9,6 @@
  * If samples/<name>.txt exists (the correct transcription), a character error rate is
  * reported. Results are written to samples/results/<name>.json for side-by-side diffs.
  */
-import "dotenv/config";
 import { config as loadEnv } from "dotenv";
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -18,7 +17,8 @@ import { transcribeImage, DEFAULT_MODEL } from "../lib/transcribe";
 import { toMarkedText } from "../lib/markers";
 import type { SubmissionKind } from "../lib/types";
 
-loadEnv({ path: ".env.local", override: true });
+loadEnv({ path: ".env.local" });
+loadEnv();
 
 const SAMPLES = path.resolve(process.cwd(), "samples");
 const RESULTS = path.join(SAMPLES, "results");
@@ -88,7 +88,7 @@ async function main() {
         `\nchars=${Array.from(out.text.replace(/\s/g, "")).length} uncertain=${out.uncertain.length} illegible=${out.illegible_count} script=${out.detected_script} tokens=${out.input_tokens}/${out.output_tokens} ${seconds.toFixed(1)}s` +
           (rate !== undefined ? ` CER=${(rate * 100).toFixed(2)}%` : ""),
       );
-      await writeFile(path.join(RESULTS, `${file}.json`), JSON.stringify({ file, model, kind, ...out, cer: rate }, null, 2));
+      await writeFile(path.join(RESULTS, `${file}.json`), JSON.stringify({ file, kind, ...out, requested_model: model, cer: rate }, null, 2));
       summary.push({ file, chars: Array.from(out.text).length, uncertain: out.uncertain.length, illegible: out.illegible_count, cer: rate, seconds });
     } catch (err) {
       console.error(`FAILED: ${(err as Error).message}`);
