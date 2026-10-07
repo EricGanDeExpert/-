@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #1c1917;
+  --color-paper: #fafaf9;
+  --color-accent: #b91c1c;
+  --color-accent-soft: #fee2e2;
+  --color-unsure: #fde68a;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "PingFang TC", "PingFang SC", "Noto Sans TC", "Noto Sans SC", "Microsoft JhengHei", sans-serif;
+  --font-han: "Noto Serif TC", "Noto Serif SC", "Songti TC", "Songti SC", "PMingLiU", serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.transcript {
+  font-family: var(--font-han);
+  font-size: 1.15rem;
+  line-height: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+}
+@utility btn-primary {
+  @apply btn bg-accent text-white hover:bg-red-800;
+}
+@utility btn-secondary {
+  @apply btn border border-stone-300 bg-white text-ink hover:bg-stone-100;
+}
+@utility btn-ghost {
+  @apply btn text-stone-600 hover:bg-stone-100;
+}
+@utility btn-danger {
+  @apply btn border border-red-300 bg-white text-red-700 hover:bg-red-50;
+}
+@utility input {
+  @apply w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-base outline-none focus:border-accent focus:ring-2 focus:ring-accent/20;
+}
+@utility card {
+  @apply rounded-2xl border border-stone-200 bg-white;
+}
+@utility label {
+  @apply mb-1 block text-xs font-medium text-stone-500;
+}

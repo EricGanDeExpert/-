@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit",
-    "typecheck": "tsc --noEmit",
+    "lint": "next typegen && tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test:samples": "tsx scripts/transcribe-samples.ts",
     "test:unit": "tsx --test lib/*.test.ts"
   },
