@@ -14,7 +14,6 @@
 --     their own tables (text_annotations, rubrics, assessments) that reference
 --     transcriptions/submissions, so the student's original text is never mutated.
 
-create extension if not exists pgcrypto;
 
 -- ---------------------------------------------------------------------------
 -- Organizations (Phase 2: school/team licenses). Created now so FKs exist.
