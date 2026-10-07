@@ -171,6 +171,34 @@ create trigger transcriptions_touch before update on public.transcriptions
   for each row execute function public.touch_updated_at();
 
 -- ---------------------------------------------------------------------------
+-- Image retention: expiry is derived from the teacher's retention setting, and
+-- re-applied to existing photos whenever the setting changes.
+-- ---------------------------------------------------------------------------
+create or replace function public.set_page_expiry() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  new.image_expires_at := coalesce(new.created_at, now())
+    + make_interval(days => coalesce((select retention_days from public.profiles where id = new.teacher_id), 30));
+  return new;
+end $$;
+
+create trigger submission_pages_expiry before insert on public.submission_pages
+  for each row execute function public.set_page_expiry();
+
+create or replace function public.reapply_retention() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  update public.submission_pages
+  set image_expires_at = created_at + make_interval(days => new.retention_days)
+  where teacher_id = new.id and image_deleted_at is null;
+  return new;
+end $$;
+
+create trigger profiles_retention after update of retention_days on public.profiles
+  for each row when (old.retention_days is distinct from new.retention_days)
+  execute function public.reapply_retention();
+
+-- ---------------------------------------------------------------------------
 -- Profile bootstrap on sign-up
 -- ---------------------------------------------------------------------------
 create or replace function public.handle_new_user() returns trigger
