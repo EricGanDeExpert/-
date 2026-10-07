@@ -3,7 +3,7 @@
 ## Data model
 
 ```
-auth.users ─┬─ profiles            (locale, preferred script, retention days, plan, Stripe ids, org id*)
+auth.users ─┬─ profiles            (locale, preferred script, retention days, plan, Whop membership, org id*)
             ├─ classes ─── students
             ├─ submissions ──┬── submission_pages ─── transcriptions
             │   (class?, student?, kind, status)        (text, raw_text, uncertain[], illegible_count)
@@ -14,7 +14,7 @@ organizations ─ organization_members          (* Phase 2: school/team licenses
 
 | Table | Purpose |
 |---|---|
-| `profiles` | One per teacher. UI locale, preferred output script, image retention (days), plan + Stripe subscription state. Billing columns are writable only by the service role. |
+| `profiles` | One per teacher. UI locale, preferred output script, image retention (days), plan + Whop membership state. Billing columns are writable only by the service role. |
 | `classes`, `students` | Organisation for a teacher's classes. Deleting a class cascades to students; submissions keep their text but lose the link. |
 | `submissions` | One piece of student work. `class_id` / `student_id` are nullable so photos can stay unassigned. `kind` = essay / dictation / short_answer / other. |
 | `submission_pages` | One photo each. `image_path` points into the private `submissions` storage bucket (`{teacher}/{submission}/{page}.jpg`). `image_expires_at` drives automatic deletion; `image_deleted_at` records it. |
@@ -36,7 +36,7 @@ Row-level security restricts every table and the storage bucket to the owning te
 3. **Transcribe** (`POST /api/transcribe`): verifies ownership, atomically consumes quota, downloads the image with the service role, normalises it with `sharp`, sends it to Claude with the handwriting prompt, parses the inline markers into `{text, uncertain, illegible_count}`, stores the transcription. Failure refunds the quota.
 4. **Review** (`/submissions/[id]`): photo + text side by side (stacked on mobile). Uncertain characters are highlighted; tapping one offers alternatives. Inline editing remaps uncertain indices so highlights survive edits.
 5. **Export**: clipboard, `.txt`, `.docx` per submission, one `.docx` per class (`/api/export/...`). Optional 繁/简 conversion with OpenCC happens only when the teacher picks it.
-6. **Billing**: Stripe Checkout (subscription) → webhook updates `profiles.plan`. Free tier = `FREE_PAGES_PER_MONTH` pages, enforced in `consume_pages()`.
+6. **Billing**: Whop checkout (monthly plan, tagged with the teacher id in metadata) → `membership.*` webhooks update `profiles.plan`. Free tier = `FREE_PAGES_PER_MONTH` pages, enforced in `consume_pages()`.
 7. **Retention**: Vercel cron hits `/api/cron/cleanup` daily; images past `image_expires_at` are removed from Storage. Teachers can delete any submission (rows + images) instantly.
 
 ## Transcription output format
@@ -71,7 +71,8 @@ app/
   api/submissions/[id]/route.ts   DELETE (rows + images)
   api/export/submission/[id]/route.ts   ?format=txt|docx&script=
   api/export/class/[id]/route.ts        one .docx per class
-  api/stripe/{checkout,portal,webhook}/route.ts
+  api/billing/{checkout,manage}/route.ts  Whop checkout link / membership management link
+  api/whop/webhook/route.ts
   api/cron/cleanup/route.ts
 components/                       client components (capture queue, review editor, nav…)
 lib/
@@ -82,7 +83,7 @@ lib/
   docx.ts                         .docx builders
   i18n/                           dictionaries (zh-Hant, en; zh-Hans derived via OpenCC)
   supabase/{client,server,admin}.ts
-  stripe.ts, env.ts, types.ts
+  whop.ts, env.ts, types.ts
 proxy.ts                          Supabase session refresh + auth gate (Next 16 “proxy”)
 supabase/migrations/0001_init.sql
 scripts/transcribe-samples.ts     accuracy harness over /samples

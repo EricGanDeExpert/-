@@ -33,9 +33,9 @@ export function SettingsForm({ email, profile, used, limit, upgraded }: { email:
     router.refresh();
   }
 
-  async function billing(endpoint: "checkout" | "portal") {
+  async function billing(endpoint: "checkout" | "manage") {
     setBusy(true);
-    const res = await fetch(`/api/stripe/${endpoint}`, { method: "POST" });
+    const res = await fetch(`/api/billing/${endpoint}`, { method: "POST" });
     const body = await res.json().catch(() => ({}));
     setBusy(false);
     if (body.url) window.location.href = body.url;
@@ -106,7 +106,7 @@ export function SettingsForm({ email, profile, used, limit, upgraded }: { email:
             {profile.current_period_end && (
               <p className="text-xs text-stone-500">{t("settings.renews", { date: new Date(profile.current_period_end).toLocaleDateString(currentLocale) })}</p>
             )}
-            <button onClick={() => billing("portal")} className="btn-secondary" disabled={busy}>
+            <button onClick={() => billing("manage")} className="btn-secondary" disabled={busy}>
               {t("settings.manage")}
             </button>
           </>
@@ -127,8 +127,8 @@ export function SettingsForm({ email, profile, used, limit, upgraded }: { email:
             <button onClick={() => billing("checkout")} className="btn-primary w-full py-3" disabled={busy}>
               {t("settings.upgrade")}
             </button>
-            {profile.stripe_customer_id && (
-              <button onClick={() => billing("portal")} className="btn-ghost w-full text-xs" disabled={busy}>
+            {profile.whop_membership_id && (
+              <button onClick={() => billing("manage")} className="btn-ghost w-full text-xs" disabled={busy}>
                 {t("settings.manage")}
               </button>
             )}

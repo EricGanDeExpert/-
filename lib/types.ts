@@ -27,7 +27,7 @@ export interface Profile {
   plan: "free" | "pro";
   subscription_status: string | null;
   current_period_end: string | null;
-  stripe_customer_id: string | null;
+  whop_membership_id: string | null;
 }
 
 export interface ClassRow {

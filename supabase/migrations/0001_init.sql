@@ -23,8 +23,7 @@ create table public.organizations (
   name text not null,
   plan text not null default 'free' check (plan in ('free', 'pro', 'school')),
   seat_limit int,
-  stripe_customer_id text,
-  stripe_subscription_id text,
+  whop_membership_id text,
   created_at timestamptz not null default now()
 );
 
@@ -50,8 +49,9 @@ create table public.profiles (
   -- Days to keep uploaded images before automatic deletion (text is kept until deleted).
   retention_days int not null default 30 check (retention_days between 1 and 365),
   plan text not null default 'free' check (plan in ('free', 'pro')),
-  stripe_customer_id text unique,
-  stripe_subscription_id text,
+  -- Billing via Whop: set only by the webhook (service role).
+  whop_user_id text,
+  whop_membership_id text unique,
   subscription_status text,
   current_period_end timestamptz,
   organization_id uuid references public.organizations(id) on delete set null,

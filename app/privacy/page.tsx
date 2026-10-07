@@ -23,7 +23,7 @@ function content(days: number): Record<"zh" | "en", { title: string; updated: st
             "你的帳戶：電郵地址、介面語言及設定。",
             "你建立的班級和學生名單（只有名字及學號，由你輸入）。",
             "你上傳的作業照片，以及轉錄出來的文字和你的修改。",
-            "每月使用的頁數（用於免費額度）。付款由 Stripe 處理，我們不會接觸你的信用卡資料。",
+            "每月使用的頁數（用於免費額度）。付款由 Whop 處理，我們不會接觸你的信用卡資料。",
           ],
         },
         {
@@ -43,7 +43,7 @@ function content(days: number): Record<"zh" | "en", { title: string; updated: st
         {
           h: "服務供應商",
           p: [
-            "Supabase（登入、資料庫、照片儲存）、Anthropic（手寫辨識）、Stripe（付款）、Vercel（網站寄存）。他們只會按我們的指示處理資料。",
+            "Supabase（登入、資料庫、照片儲存）、Anthropic（手寫辨識）、Whop（付款）、Vercel（網站寄存）。他們只會按我們的指示處理資料。",
           ],
         },
         {
@@ -71,7 +71,7 @@ function content(days: number): Record<"zh" | "en", { title: string; updated: st
             "Your account: email address, interface language and settings.",
             "Classes and rosters you create (names and student numbers you enter).",
             "Photos of student work you upload, the transcribed text, and your edits.",
-            "Pages used per month (for the free tier). Payments are handled by Stripe; we never see your card details.",
+            "Pages used per month (for the free tier). Payments are handled by Whop; we never see your card details.",
           ],
         },
         {
@@ -90,7 +90,7 @@ function content(days: number): Record<"zh" | "en", { title: string; updated: st
         },
         {
           h: "Service providers",
-          p: ["Supabase (sign-in, database, photo storage), Anthropic (handwriting recognition), Stripe (payments), Vercel (hosting). They process data only on our instructions."],
+          p: ["Supabase (sign-in, database, photo storage), Anthropic (handwriting recognition), Whop (payments), Vercel (hosting). They process data only on our instructions."],
         },
         {
           h: "A note for schools and teachers",

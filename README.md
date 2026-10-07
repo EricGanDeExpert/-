@@ -10,7 +10,7 @@ Helps Chinese-language teachers read students' messy handwriting. Photograph ess
 - **Privacy**: photos auto-delete after 30 days (configurable per teacher), instant delete, no other use of student data.
 - **UI**: 繁體中文 / 简体中文 / English.
 
-Stack: Next.js 16 (App Router) + TypeScript + Tailwind v4 · Supabase (auth, Postgres, storage) · Anthropic Claude (vision) · Stripe · Vercel.
+Stack: Next.js 16 (App Router) + TypeScript + Tailwind v4 · Supabase (auth, Postgres, storage) · Anthropic Claude (vision) · Whop (billing) · Vercel.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the data model, request flow and file layout.
 
@@ -40,13 +40,13 @@ cp .env.example .env.local
 
 Create an API key at [console.anthropic.com](https://console.anthropic.com) and set `ANTHROPIC_API_KEY`. The default model is `claude-opus-5-5`; override with `ANTHROPIC_MODEL` (e.g. to compare accuracy/cost with `claude-sonnet-5-5`). Requests opt into Anthropic's server-side fallback (`fallbacks: "default"`), so if a safety classifier ever declines an image the API retries on a fallback model inside the same call.
 
-### 3. Stripe
+### 3. Whop (billing)
 
-1. In the Stripe dashboard create a product **字清 Pro** with a **recurring monthly price of US$5**. To show local prices at checkout, add *currency options* on the same price: HKD 39 and CNY 35. Copy the price id into `STRIPE_PRICE_ID_PRO`.
-2. Copy your secret key into `STRIPE_SECRET_KEY`.
-3. **Webhook** – add an endpoint `https://YOUR-DOMAIN/api/stripe/webhook` listening for `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `customer.subscription.paused` and `customer.subscription.resumed`. Copy the signing secret into `STRIPE_WEBHOOK_SECRET`.
-   Locally: `stripe listen --forward-to localhost:3000/api/stripe/webhook` and use the `whsec_…` it prints.
-4. **Customer portal** – enable it under *Settings → Billing → Customer portal* (used by "Manage subscription").
+1. In your Whop dashboard create a product **字清 Pro** with a **renewal plan at US$5 every 30 days**. Copy the plan id (`plan_…`) into `WHOP_PLAN_ID_PRO`. Whop's checkout shows local payment methods; the app displays HK$39 / ¥35 as reference equivalents.
+2. *Developer → API keys*: create a company API key that can create checkout configurations and read memberships, and put it in `WHOP_API_KEY`.
+3. **Webhook** – *Developer → Webhooks*: add `https://YOUR-DOMAIN/api/whop/webhook` subscribed to `membership.activated`, `membership.deactivated`, `membership.updated` and `membership.cancel_at_period_end_changed`. Copy the signing secret (`ws_…`) verbatim into `WHOP_WEBHOOK_SECRET`. To test locally, expose port 3000 with a tunnel (e.g. `cloudflared tunnel --url http://localhost:3000`) and point a second webhook at it.
+
+How it fits together: **Upgrade** creates a Whop checkout configuration for the Pro plan with `metadata.supabase_user_id`; Whop copies that metadata onto the membership, so the webhook knows which teacher to upgrade. Memberships with status `active`, `trialing`, `past_due` or `canceling` (cancelled but paid until the period ends) count as Pro, and only memberships on `WHOP_PLAN_ID_PRO` are considered. **Manage subscription** opens the membership's Whop `manage_url`, where teachers can cancel or update their payment method.
 
 The free limit (`FREE_PAGES_PER_MONTH`, default 20) is enforced in Postgres by `consume_pages()`, an atomic check-and-increment called by the transcription route; failed transcriptions are refunded.
 
@@ -64,7 +64,7 @@ On a phone on the same network, open `http://YOUR-LAN-IP:3000` (camera capture n
 
 1. Import the repo in Vercel and add every variable from `.env.example` (set `NEXT_PUBLIC_SITE_URL` to the production URL).
 2. Set `CRON_SECRET` to a long random string. `vercel.json` schedules `/api/cron/cleanup` daily; Vercel sends `Authorization: Bearer $CRON_SECRET`, and the route deletes photos past their retention date.
-3. Add the production callback URL to Supabase and the webhook URL to Stripe (steps above).
+3. Add the production callback URL to Supabase and the webhook URL to Whop (steps above).
 
 ---
 

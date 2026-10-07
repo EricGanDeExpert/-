@@ -14,14 +14,14 @@ export const env = {
   get supabaseServiceKey() {
     return required("SUPABASE_SERVICE_ROLE_KEY");
   },
-  get stripeSecretKey() {
-    return required("STRIPE_SECRET_KEY");
+  get whopApiKey() {
+    return required("WHOP_API_KEY");
   },
-  get stripeWebhookSecret() {
-    return required("STRIPE_WEBHOOK_SECRET");
+  get whopWebhookSecret() {
+    return required("WHOP_WEBHOOK_SECRET");
   },
-  get stripePriceIdPro() {
-    return required("STRIPE_PRICE_ID_PRO");
+  get whopPlanIdPro() {
+    return required("WHOP_PLAN_ID_PRO");
   },
   get siteUrl() {
     return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
