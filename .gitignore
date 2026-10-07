@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+.env*.local
+.env
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+samples/results
+samples/*.jpg
+samples/*.jpeg
+samples/*.png
+samples/*.heic
+samples/*.webp
+!samples/README.md
