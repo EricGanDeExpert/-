@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useMemo, type ReactNode } from "react";
-import { format, type MessageKey, type Messages } from "@/lib/i18n";
+import { format } from "@/lib/i18n/format";
+import type { MessageKey, Messages } from "@/lib/i18n";
 import type { Locale } from "@/lib/types";
 
 type Ctx = { locale: Locale; t: (key: MessageKey, vars?: Record<string, string | number>) => string };

@@ -3,8 +3,7 @@ import type { Locale } from "../types";
 import { en, zhHant, type MessageKey, type Messages } from "./messages";
 
 export type { MessageKey, Messages };
-export const LOCALES: Locale[] = ["zh-Hant", "zh-Hans", "en"];
-export const LOCALE_LABELS: Record<Locale, string> = { "zh-Hant": "繁體中文", "zh-Hans": "简体中文", en: "English" };
+export { LOCALES, LOCALE_LABELS, isLocale } from "./format";
 
 let zhHans: Messages | null = null;
 
@@ -34,14 +33,8 @@ export function getMessages(locale: Locale): Messages {
   return zhHant;
 }
 
-export function format(template: string, vars?: Record<string, string | number>): string {
-  if (!vars) return template;
-  return template.replace(/\{(\w+)\}/g, (_, k) => (k in vars ? String(vars[k]) : `{${k}}`));
-}
+export { format } from "./format";
 
-export function isLocale(v: unknown): v is Locale {
-  return typeof v === "string" && (LOCALES as string[]).includes(v);
-}
 
 /** Map an Accept-Language header to our locales. HK/TW/MO → Traditional, CN/SG → Simplified. */
 export function localeFromAcceptLanguage(header: string | null): Locale {
